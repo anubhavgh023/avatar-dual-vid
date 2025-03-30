@@ -59,13 +59,13 @@ async def process_video(request: VideoRequest):
     real_local_path = os.path.join(DOWNLOADS_DIR, "real_video.mp4")
     bgm_local_path = os.path.join(DOWNLOADS_DIR,"bgm_1.mp4") 
 
-    # Step 0: Download videos from S3
-    try:
-        download_from_s3(request.avatar_video, avatar_local_path)
-        download_from_s3(request.real_video, real_local_path)
-        download_from_s3(request.bgm,bgm_local_path)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+    # # Step 0: Download videos from S3
+    # try:
+    #     download_from_s3(request.avatar_video, avatar_local_path)
+    #     download_from_s3(request.real_video, real_local_path)
+    #     download_from_s3(request.bgm,bgm_local_path)
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 
     # Step 1: Overlay text on avatar video
     try:

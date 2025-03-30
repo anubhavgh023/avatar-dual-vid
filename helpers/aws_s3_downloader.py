@@ -12,21 +12,6 @@ s3_client = boto3.client("s3")
 
 
 def download_from_s3(s3_url: str, local_path: str) -> None:
-    """
-    Download a file from an S3 URL and save it to a local path.
-
-    Parameters:
-    -----------
-    s3_url : str
-        The S3 URL (e.g., s3://bucket-name/key or https://bucket-name.s3.region.amazonaws.com/key)
-    local_path : str
-        Local path to save the downloaded file
-
-    Raises:
-    -------
-    Exception
-        If the download fails
-    """
     # Parse the S3 URL
     parsed_url = urlparse(s3_url)
     
@@ -34,9 +19,7 @@ def download_from_s3(s3_url: str, local_path: str) -> None:
     if parsed_url.scheme == "s3":
         bucket = parsed_url.netloc
         key = parsed_url.path.lstrip("/")
-    # Handle https:// scheme (e.g., from S3 presigned URLs or public links)
     elif parsed_url.scheme == "https" and "s3" in parsed_url.netloc:
-        # Extract bucket and key from URL like https://bucket-name.s3.region.amazonaws.com/key
         bucket = parsed_url.netloc.split(".")[0]
         key = parsed_url.path.lstrip("/")
     else:
