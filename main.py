@@ -41,6 +41,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
 
 
+@app.get("/health-check")
+async def health_check():
+    return {"success": True}
+
+
 @app.post("/process-video/")
 async def process_video(request: VideoRequest):
     """
@@ -79,7 +84,7 @@ async def process_video(request: VideoRequest):
     try:
         download_from_s3(request.avatar_video, avatar_local_path)
         download_from_s3(request.real_video, real_local_path)
-        if request.bgm:  # Only download BGM if provided
+        if request.bgm and request.bgm.strip():  # Only download BGM if provided
             download_from_s3(request.bgm, bgm_local_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
