@@ -89,17 +89,17 @@ def add_text_to_avatar(
     if not hasattr(video, "duration") or video.duration is None:
         video.duration = video.reader.duration
 
-    # Check if video has 9:16 aspect ratio (with some tolerance)
+    # # Check if video has 9:16 aspect ratio (with some tolerance)
     width, height = video.size
-    ratio = width / height
-    target_ratio = 9 / 16
+    # ratio = width / height
+    # target_ratio = 9 / 16
 
-    tolerance = 0.05
-    if abs(ratio - target_ratio) > tolerance:
-        video.close()
-        raise ValueError(
-            f"Video aspect ratio is {width}x{height} ({ratio:.2f}), not 9:16 mobile aspect ratio"
-        )
+    # tolerance = 0.05
+    # if abs(ratio - target_ratio) > tolerance:
+    #     video.close()
+    #     raise ValueError(
+    #         f"Video aspect ratio is {width}x{height} ({ratio:.2f}), not 9:16 mobile aspect ratio"
+    #     )
 
     # Create text clip with padding (use width with 40px total padding)
     max_width = int(width * 0.9)  # 90% of video width for padding
