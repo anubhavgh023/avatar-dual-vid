@@ -19,7 +19,7 @@ FONT_STYLES = {
         "font": os.path.join(
             BASE_DIR, "..", "assets", "fonts", "PoetsenOne-Regular.ttf"
         ),
-        "size": 52,
+        "size": 48,
     },
     "alfaSlab": {
         "font": os.path.join(
