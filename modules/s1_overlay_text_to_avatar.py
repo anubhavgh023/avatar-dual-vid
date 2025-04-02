@@ -13,25 +13,25 @@ FONT_STYLES = {
         "font": os.path.join(
             BASE_DIR, "..", "assets", "fonts", "Poppins-ExtraBold.ttf"
         ),
-        "size": 50,
+        "size": 48,
     },
     "poetsenOne": {
         "font": os.path.join(
             BASE_DIR, "..", "assets", "fonts", "PoetsenOne-Regular.ttf"
         ),
-        "size": 50,
+        "size": 48,
     },
     "alfaSlab": {
         "font": os.path.join(
             BASE_DIR, "..", "assets", "fonts", "AlfaSlabOne-Regular.ttf"
         ),
-        "size": 50,
+        "size": 48,
     },
     "titanOne": {
         "font": os.path.join(
             BASE_DIR, "..", "assets", "fonts", "TitanOne-Regular.ttf"
         ),
-        "size": 52,
+        "size": 48,
     },
 }
 
