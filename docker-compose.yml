@@ -3,24 +3,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
     volumes:
       - ./downloads:/app/downloads
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-  caddy:
-    image: caddy:latest
+    expose:
+      - "8000" 
+  nginx:
+    image: nginx:latest
     ports:
-      - "80:80"    # HTTP
-      - "443:443"  # HTTPS
+      - "80:80"
+      # - "443:443"  # For HTTPS later
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy/data:/data  # Persistent storage for certificates
-    depends_on:
-      - app
-
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf 
+    restart: unless-stopped
 volumes:
   downloads:

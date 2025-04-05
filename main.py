@@ -52,7 +52,7 @@ DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
 
 
 @app.get("/")
-async def health_check():
+async def root():
     return {"success": True}
 
 @app.get("/health-check")
