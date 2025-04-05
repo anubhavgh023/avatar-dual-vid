@@ -51,10 +51,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
 
 
-@app.get("/health-check")
+@app.get("/")
 async def health_check():
     return {"success": True}
 
+@app.get("/health-check")
+async def health_check():
+    return {"health-status": True}
 
 @app.post("/process-video/")
 async def process_video(request: VideoRequest):
