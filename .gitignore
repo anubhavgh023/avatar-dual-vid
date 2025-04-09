@@ -177,3 +177,5 @@ cython_debug/
 
 caddy_data/
 caddy_config/
+
+*.pem
