@@ -13,15 +13,9 @@ from helpers.aws_uploader import upload_to_s3
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:*",
-    "http://localhost:8080",
-    "http://localhost:3000",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "https://ugc-ai.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,9 +49,11 @@ DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
 async def root():
     return {"success": True}
 
+
 @app.get("/health-check")
 async def health_check():
     return {"health-status": True}
+
 
 @app.post("/process-video/")
 async def process_video(request: VideoRequest):
