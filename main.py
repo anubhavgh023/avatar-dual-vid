@@ -15,7 +15,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://ugc-ai.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://ugc-ai.vercel.app","https://vibepost.anubhavsamanta.tech"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,7 +55,7 @@ async def health_check():
     return {"health-status": True}
 
 
-@app.post("/process-video/")
+@app.post("/process-video")
 async def process_video(request: VideoRequest):
     """
     Process a video by downloading from S3, overlaying text, concatenating videos, optionally adding BGM,
@@ -150,7 +150,7 @@ async def process_video(request: VideoRequest):
     return {"success": True, "s3_url": s3_url}
 
 
-@app.post("/vertical-concat/")
+@app.post("/vertical-concat")
 async def vertical_concat(request: VerticalConcatRequest):
     """
     Combine two videos vertically (game video and real video) with a 9:16 aspect ratio,
