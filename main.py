@@ -10,6 +10,7 @@ from modules.s3_add_bgm import add_bgm_to_video
 from modules.vertical_concat import combine_videos_vertically  # Import the new function
 from helpers.aws_s3_downloader import download_from_s3
 from helpers.aws_uploader import upload_to_s3
+from modules.img_gen import generate_image
 
 app = FastAPI()
 
@@ -39,6 +40,11 @@ class VerticalConcatRequest(BaseModel):
     game_vid: str  # S3 URL to game video
     bgm: Optional[str] = None  # Optional S3 URL to background music
     position: str  # "top" or "bottom"
+
+
+# New request body model for /img-generation/
+class ImageGenerationRequest(BaseModel):
+    prompt: str  # Text prompt for image generation
 
 
 # Base directory for output paths (root of project)
@@ -232,3 +238,47 @@ async def vertical_concat(request: VerticalConcatRequest):
 
     # Return success status and S3 URL
     return {"success": True, "s3_url": s3_url}
+
+
+ # ========== Image Generation =================
+@app.post("/img-generation")
+async def generate_image_endpoint(request: ImageGenerationRequest):
+    """
+    Generate an image using Segmind's Juggernaut Pro Flux API, upload it to S3, and return the S3 URL.
+
+    Parameters (in request body):
+    - prompt: Text prompt for image generation
+
+    Returns:
+    - JSON with success status and S3 presigned URL
+    """
+    # Step 1: Validate the prompt
+    if not request.prompt or not request.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt cannot be empty")
+
+    print("------------IMAGE GENERATION REQUEST-------------")
+    print(request)
+    print("------------IMAGE GENERATION REQUEST-------------")
+
+    # Step 2: Generate the image using Segmind API
+    image_output_path = os.path.join(DOWNLOADS_DIR, "generated_image.jpg")
+    try:
+        os.makedirs(DOWNLOADS_DIR, exist_ok=True)  # Ensure downloads directory exists
+        success = generate_image(request.prompt, image_output_path)
+        if not success:
+            raise Exception("Image generation failed")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Step 2 failed: Image generation error - {str(e)}"
+        )
+
+    # Step 3: Upload the generated image to S3
+    try:
+        s3_url = upload_to_s3(image_output_path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Step 3 failed: S3 upload error - {str(e)}"
+        )
+
+    # Step 4: Return success status and S3 URL
+    return {"success": True, "s3_link": s3_url}
