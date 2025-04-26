@@ -10,7 +10,8 @@ from modules.s3_add_bgm import add_bgm_to_video
 from modules.vertical_concat import combine_videos_vertically  # Import the new function
 from helpers.aws_s3_downloader import download_from_s3
 from helpers.aws_uploader import upload_to_s3
-from modules.img_gen import generate_image
+from modules.v2_img_gen import generate_image
+from modules.img_to_vid_gen import generate_video_from_image  # Import the new function
 
 app = FastAPI()
 
@@ -46,6 +47,9 @@ class VerticalConcatRequest(BaseModel):
 class ImageGenerationRequest(BaseModel):
     prompt: str  # Text prompt for image generation
 
+
+class ImageToVideoRequest(BaseModel):
+    image_url: str  # S3 URL to the input image
 
 # Base directory for output paths (root of project)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -240,7 +244,7 @@ async def vertical_concat(request: VerticalConcatRequest):
     return {"success": True, "s3_url": s3_url}
 
 
- # ========== Image Generation =================
+# ========== Image Generation =================
 @app.post("/img-generation")
 async def generate_image_endpoint(request: ImageGenerationRequest):
     """
@@ -275,6 +279,52 @@ async def generate_image_endpoint(request: ImageGenerationRequest):
     # Step 3: Upload the generated image to S3
     try:
         s3_url = upload_to_s3(image_output_path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Step 3 failed: S3 upload error - {str(e)}"
+        )
+
+    # Step 4: Return success status and S3 URL
+    return {"success": True, "s3_link": s3_url}
+
+
+# ========== Image to Video Generation =================
+@app.post("/img-to-vid-gen")
+async def image_to_video(request: ImageToVideoRequest):
+    """
+    Generate a video from an image using MiniMax's I2V-01-Director model, upload it to S3, and return the S3 URL.
+
+    Parameters (in request body):
+    - image_url: S3 URL to the input image
+
+    Returns:
+    - JSON with success status and S3 presigned URL
+    """
+    print("------------IMAGE TO VIDEO GENERATION REQUEST-------------")
+    print(request)
+    print("------------IMAGE TO VIDEO GENERATION REQUEST-------------")
+
+    # Step 1: Download the image from S3 and validate
+    try:
+        os.makedirs(DOWNLOADS_DIR, exist_ok=True)  # Ensure downloads directory exists
+        image_local_path = os.path.join(DOWNLOADS_DIR, "input_image.jpg")
+        download_from_s3(request.image_url, image_local_path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Step 1 failed: Image download error - {str(e)}"
+        )
+
+    # Step 2: Generate video from the downloaded image
+    try:
+        video_output_path = generate_video_from_image(image_local_path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Step 2 failed: Video generation error - {str(e)}"
+        )
+
+    # Step 3: Upload the generated video to S3
+    try:
+        s3_url = upload_to_s3(video_output_path)
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Step 3 failed: S3 upload error - {str(e)}"
