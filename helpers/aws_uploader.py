@@ -29,16 +29,28 @@ def upload_to_s3(file_path: str) -> str:
     str
         Presigned URL for the uploaded file
     """
-    # Generate a timestamped filename
+    # Determine file extension and content type
+    file_extension = os.path.splitext(file_path)[1].lower()
+    content_types = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".mp4": "video/mp4",
+        ".mov": "video/quicktime",
+    }
+    content_type = content_types.get(file_extension, "application/octet-stream")
+    file_type = "image" if file_extension in [".jpg", ".jpeg", ".png"] else "video"
+
+    # Generate a timestamped filename with correct extension
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    file_name = f"video_{current_time}.mp4"
+    file_name = f"{file_type}_{current_time}{file_extension}"
 
     s3_path = f"uploads/{file_name}"
     bucket_name = os.getenv("S3_BUCKET_NAME")
     try:
-        # Upload the file to S3
+        # Upload the file to S3 with appropriate ContentType
         s3_client.upload_file(
-            file_path, bucket_name, s3_path, ExtraArgs={"ContentType": "video/mp4"}
+            file_path, bucket_name, s3_path, ExtraArgs={"ContentType": content_type}
         )
 
         # Generate a presigned URL valid for 1 hour (3600 seconds)
@@ -52,9 +64,9 @@ def upload_to_s3(file_path: str) -> str:
         raise Exception(f"Failed to upload to S3: {str(e)}")
 
 
-
+# working: issue in img upload
 # import os
-# import boto3 
+# import boto3
 # from dotenv import load_dotenv
 # from datetime import datetime
 
@@ -69,17 +81,32 @@ def upload_to_s3(file_path: str) -> str:
 #     region_name=os.getenv("AWS_REGION"),
 # )
 
-# # Function to upload to S3 and generate presigned URL
-# def upload_to_s3(file_path: str, duration: int) -> str:
+
+# def upload_to_s3(file_path: str) -> str:
+#     """
+#     Upload a file to S3 and return a presigned URL.
+
+#     Parameters:
+#     -----------
+#     file_path : str
+#         Local path to the file to upload
+
+#     Returns:
+#     --------
+#     str
+#         Presigned URL for the uploaded file
+#     """
 #     # Generate a timestamped filename
 #     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-#     file_name = f"{current_time}-{duration}.mp4"
+#     file_name = f"video_{current_time}.mp4"
 
 #     s3_path = f"uploads/{file_name}"
 #     bucket_name = os.getenv("S3_BUCKET_NAME")
 #     try:
 #         # Upload the file to S3
-#         s3_client.upload_file(file_path, bucket_name, s3_path,ExtraArgs={"ContentType":"video/mp4"})
+#         s3_client.upload_file(
+#             file_path, bucket_name, s3_path, ExtraArgs={"ContentType": "video/mp4"}
+#         )
 
 #         # Generate a presigned URL valid for 1 hour (3600 seconds)
 #         presigned_url = s3_client.generate_presigned_url(
@@ -89,4 +116,4 @@ def upload_to_s3(file_path: str) -> str:
 #         )
 #         return presigned_url
 #     except Exception as e:
-#         return f"ERROR: {e}"
+#         raise Exception(f"Failed to upload to S3: {str(e)}")
