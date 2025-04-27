@@ -25,7 +25,7 @@ def generate_image(prompt, output_path="output.jpg"):
 
     # Default system prompt for photorealistic selfies (concise to avoid API overload)
     default_system_prompt = (
-        "A photorealistic selfie of a person facing the camera with a friendly smile, "
+        "A photorealistic selfie of a person facing the camera but not too close with a friendly smile, "
         "in a realistic setting like a café or park, with natural lighting, sharp details, "
         "shot with a high-end smartphone."
     )
