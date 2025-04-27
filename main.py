@@ -10,7 +10,7 @@ from modules.s3_add_bgm import add_bgm_to_video
 from modules.vertical_concat import combine_videos_vertically  # Import the new function
 from helpers.aws_s3_downloader import download_from_s3
 from helpers.aws_uploader import upload_to_s3
-from modules.v2_img_gen import generate_image
+from modules.v1_img_gen import generate_image
 from modules.img_to_vid_gen import generate_video_from_image  # Import the new function
 
 app = FastAPI()
