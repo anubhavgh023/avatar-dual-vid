@@ -49,6 +49,7 @@ class ImageGenerationRequest(BaseModel):
 
 
 class ImageToVideoRequest(BaseModel):
+    prompt: str
     image_url: str  # S3 URL to the input image
 
 # Base directory for output paths (root of project)
@@ -316,7 +317,7 @@ async def image_to_video(request: ImageToVideoRequest):
 
     # Step 2: Generate video from the downloaded image
     try:
-        video_output_path = generate_video_from_image(image_local_path)
+        video_output_path = generate_video_from_image(image_local_path,request.prompt)
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Step 2 failed: Video generation error - {str(e)}"
