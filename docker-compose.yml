@@ -3,24 +3,77 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # ports:
-    #   - "8000:8000"
-    volumes:
-      - ./downloads:/app/downloads
+    ports:
+      - "8000:8000"
     environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-    expose:
-      - "8000" 
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-      - "443:443"  # For HTTPS later
+      - AWS_REGION=${AWS_REGION}
+      # Add other environment variables as needed
+    depends_on:
+      - redis
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf 
-      - ./ssl:/etc/nginx/ssl
-    restart: unless-stopped
+      - .:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      # Add other environment variables as needed
+    depends_on:
+      - redis
+      - app
+    volumes:
+      - .:/app
+    command: celery -A celery_config worker --loglevel=info --concurrency=2
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
-  downloads:
+  redis_data:
+
+
+#working
+# services:
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     # ports:
+#     #   - "8000:8000"
+#     volumes:
+#       - ./downloads:/app/downloads
+#     environment:
+#       - REDIS_URL=redis://redis:6379/0
+#       - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+#       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+#       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+#       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+#     expose:
+#       - "8000" 
+#   nginx:
+#     image: nginx:latest
+#     ports:
+#       - "80:80"
+#       - "443:443"  # For HTTPS later
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/conf.d/default.conf 
+#       - ./ssl:/etc/nginx/ssl
+#     restart: unless-stopped
+# volumes:
+#   downloads:
+

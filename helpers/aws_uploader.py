@@ -63,7 +63,6 @@ def upload_to_s3(file_path: str) -> str:
     except Exception as e:
         raise Exception(f"Failed to upload to S3: {str(e)}")
 
-
 # working: issue in img upload
 # import os
 # import boto3
